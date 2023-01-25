@@ -1,6 +1,11 @@
-const { validateEmail, validateLength } = require("../helpers/validation");
+const {
+  validateEmail,
+  validateLength,
+  validateUsername,
+} = require("../helpers/validation");
 const { validate } = require("../models/User");
 const User = require("../models/User");
+const bcrypt = require("bcrypt");
 
 exports.register = async (req, res) => {
   try {
@@ -29,11 +34,9 @@ exports.register = async (req, res) => {
     }
 
     if (!validateLength(first_name, 3, 30)) {
-      return res
-        .status(400)
-        .json({
-          message: "First name must be between 3 to 30 characters long",
-        });
+      return res.status(400).json({
+        message: "First name must be between 3 to 30 characters long",
+      });
     }
 
     if (!validateLength(last_name, 3, 30)) {
@@ -48,13 +51,17 @@ exports.register = async (req, res) => {
         .json({ message: "Password must be atleast 6 characters long" });
     }
 
-    return;
+    const cryptedPassword = await bcrypt.hash(password, 12);
+
+    let tempUsername = first_name + last_name;
+    let newUsername = await validateUsername(tempUsername);
+
     const user = await new User({
       first_name,
       last_name,
       email,
       password,
-      username,
+      username: newUsername,
       bYear,
       bMonth,
       bDay,
