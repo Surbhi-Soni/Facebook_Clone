@@ -1,1 +1,1 @@
-# Facebook_Clone
+Developing Facebook clone using MERN stack.
